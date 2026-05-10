@@ -10,6 +10,7 @@ django-cors-headers = "~=4.3"
 psycopg2-binary = "~=2.9"
 pylint = "*"
 autopep8 = "*"
+tzdata = "*"
 
 [dev-packages]
 pytest = "*"
