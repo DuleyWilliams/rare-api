@@ -64,3 +64,37 @@ class TestProfilePostCount:
         response = api_client.get(f"/profiles/{profile_user.id}")
         assert response.status_code == 200
         assert response.json()["post_count"] == 1
+
+
+class TestProfileEdit:
+    def test_owner_can_update_profile(self, api_client, profile_user):
+        token = Token.objects.create(user=profile_user)
+        api_client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        response = api_client.put(
+            f"/profiles/{profile_user.id}",
+            {"bio": "Hello world", "first_name": "Jane", "last_name": "Doe"},
+            format="json",
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["bio"] == "Hello world"
+        assert data["full_name"] == "Jane Doe"
+
+    def test_non_owner_cannot_update_profile(self, api_client, viewer, profile_user):
+        token = Token.objects.create(user=viewer)
+        api_client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        response = api_client.put(
+            f"/profiles/{profile_user.id}",
+            {"bio": "Hack"},
+            format="json",
+        )
+        assert response.status_code == 403
+
+    def test_get_profile_returns_bio(self, api_client, viewer, profile_user):
+        profile_user.bio = "My bio"
+        profile_user.save()
+        token = Token.objects.create(user=viewer)
+        api_client.credentials(HTTP_AUTHORIZATION=f"Token {token.key}")
+        response = api_client.get(f"/profiles/{profile_user.id}")
+        assert response.status_code == 200
+        assert response.json()["bio"] == "My bio"

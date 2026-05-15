@@ -21,7 +21,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = RareUser
         fields = [
-            'id', 'full_name', 'username', 'email',
+            'id', 'full_name', 'first_name', 'last_name', 'username', 'email', 'bio',
             'profile_image_url', 'created_on', 'user_type',
             'is_subscribed', 'subscriber_count', 'post_count',
         ]
@@ -61,6 +61,12 @@ class ProfileListSerializer(serializers.ModelSerializer):
 
     def get_user_type(self, obj):
         return 'Admin' if obj.is_staff else 'Author'
+
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RareUser
+        fields = ['first_name', 'last_name', 'bio']
 
 
 class RegisterSerializer(serializers.ModelSerializer):
