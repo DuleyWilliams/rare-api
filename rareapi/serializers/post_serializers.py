@@ -29,7 +29,24 @@ class PostListSerializer(serializers.ModelSerializer):
     """Slim post representation for list endpoints."""
     user = UserSummarySerializer(read_only=True)
     category = CategorySerializer(read_only=True)
+    author_name = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    reaction_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ['id', 'title', 'publication_date', 'approved', 'user', 'category']
+        fields = [
+            'id', 'title', 'content', 'publication_date', 'approved',
+            'author_name', 'user', 'category',
+            'comment_count', 'reaction_count',
+        ]
+
+    def get_author_name(self, obj):
+        full_name = f'{obj.user.first_name} {obj.user.last_name}'.strip()
+        return full_name or obj.user.username
+
+    def get_comment_count(self, obj):
+        return obj.comments.count()
+
+    def get_reaction_count(self, obj):
+        return obj.post_reactions.count()
